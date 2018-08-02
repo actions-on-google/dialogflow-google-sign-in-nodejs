@@ -1,0 +1,30 @@
+{
+  "name": "dialogflow-google-sign-in",
+  "description": "A sample for performing simple account linking using Google Sign-In for the Assistant",
+  "version": "1.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Google Inc.",
+  "engines": {
+    "node": "8"
+  },
+  "scripts": {
+    "lint": "eslint --fix \"**/*.js\"",
+    "test": "npm run lint",
+    "serve": "firebase serve --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "dependencies": {
+    "actions-on-google": "^2.2.0",
+    "dotenv": "^6.0.0",
+    "firebase-admin": "~5.13.0",
+    "firebase-functions": "^2.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.2.0",
+    "eslint-config-google": "^0.9.1"
+  }
+}

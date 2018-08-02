@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<!--
+Copyright 2018 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Google Sign-In Sample - Actions on Google</title>
+
+    <script defer src="/__/firebase/5.3.0/firebase-app.js"></script>
+    <script defer src="/__/firebase/5.3.0/firebase-auth.js"></script>
+    <script defer src="/__/firebase/5.3.0/firebase-firestore.js"></script>
+    <script defer src="/__/firebase/init.js"></script>
+
+    <style>
+      #content {
+        display: none;
+        text-align: center;
+      }
+
+      #login {
+        margin-bottom: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="content">
+      <button id="login">Login</button>
+      <label for="color">Favorite Color</label>
+      <input id="color" type="text" />
+    </div>
+    <script>
+      const content = document.getElementById('content');
+      const login = document.getElementById('login');
+      const label = document.querySelector('label[for="color"]');
+      const input = document.getElementById('color');
+
+      const display = (doc) => {
+        const value = doc.exists ? doc.data().color || '' : '';
+        if (input.value !== value) {
+          input.value = value;
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        db.settings({timestampsInSnapshots: true});
+
+        const Fields = {
+          COLOR: 'color',
+        };
+
+        const dbs = {
+          user: db.collection('user'),
+        };
+
+        login.onclick = () => {
+          if (auth.currentUser) {
+            return auth.signOut();
+          }
+          auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+        }
+
+        input.oninput = async () => {
+          // when the text input value changes, save the change to Firestore
+          await dbs.user.doc(auth.currentUser.uid).set({
+            [Fields.COLOR]: input.value,
+          });
+        }
+
+        let unsubscribe;
+
+        auth.onAuthStateChanged(async (user) => {
+          if (!user) {
+            // change UI to require login UI
+            label.style.display = 'none';
+            input.style.display = 'none';
+            login.textContent = 'Login';
+
+            content.style.display = 'block';
+
+            if (unsubscribe) {
+              // unsubscribe from color changes since user logged out
+              unsubscribe();
+            }
+            return
+          }
+
+          // change UI to logged in UI with editable fields
+          label.style.display = 'block';
+          input.style.display = 'inline-block';
+          login.textContent = `Logout from ${user.email}`;
+
+          const ref = dbs.user.doc(user.uid);
+
+          // saves the current color from Firestore to the text input value
+          display(await ref.get());
+
+          // listen on changes for color and save the unsubscribe function
+          unsubscribe = ref.onSnapshot(display);
+
+          // finally show all content when initial data is done loading
+          content.style.display = 'block';
+        });
+      });
+    </script>
+  </body>
+</html>

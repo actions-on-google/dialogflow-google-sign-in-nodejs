@@ -1,0 +1,7 @@
+node_modules
+*.DS_store
+*.log
+.firebaserc
+package-lock.json
+yarn.lock
+.env
