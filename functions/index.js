@@ -16,7 +16,7 @@
 
 'use strict';
 
-const {dialogflow, SignIn} = require('actions-on-google');
+const {dialogflow, SignIn, Suggestions} = require('actions-on-google');
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
 const dotenv = require('dotenv');
@@ -26,7 +26,6 @@ admin.initializeApp();
 
 const auth = admin.auth();
 const db = admin.firestore();
-
 db.settings({timestampsInSnapshots: true});
 
 const Fields = {
@@ -44,66 +43,63 @@ const app = dialogflow({
 
 app.middleware(async (conv) => {
   const {email} = conv.user;
-  if (email) {
+  if (!conv.data.uid && email) {
     try {
-      const user = await auth.getUserByEmail(email);
-      conv.user.ref = dbs.user.doc(user.uid);
+      conv.data.uid = (await auth.getUserByEmail(email)).uid;
     } catch (e) {
       if (e.code !== 'auth/user-not-found') {
         throw e;
       }
       // If the user is not found, create a new Firebase auth user
       // using the email obtained from the Google Assistant
-      const user = await auth.createUser({email});
-      conv.user.ref = dbs.user.doc(user.uid);
+      conv.data.uid = (await auth.createUser({email})).uid;
     }
+  }
+  if (conv.data.uid) {
+    conv.user.ref = dbs.user.doc(conv.data.uid);
   }
 });
 
-app.intent('Default Welcome Intent', (conv) => {
-  conv.ask(new SignIn('To save your favorite color'));
+app.intent('Default Welcome Intent', async (conv) => {
+  const {payload} = conv.user.profile;
+  const name = payload ? ` ${payload.given_name}` : '';
+  conv.ask(`Hi${name}!`);
+
+  // Suggestions will be placed at the end of the response
+  conv.ask(new Suggestions('Red', 'Green', 'Blue'));
+
+  if (conv.user.ref) {
+    const doc = await conv.user.ref.get();
+    if (doc.exists) {
+      const color = doc.data()[Fields.COLOR];
+      return conv.ask(`Your favorite color was ${color}. ` +
+        'Tell me a color to update it.');
+    }
+  }
+
+  conv.ask(`What's your favorite color?`);
+});
+
+app.intent('Give Color', async (conv, {color}) => {
+  conv.data[Fields.COLOR] = color;
+  if (conv.user.ref) {
+    await conv.user.ref.set({[Fields.COLOR]: color});
+    conv.close(`I got ${color} as your favorite color.`);
+    return conv.close(`Since you are signed in, I'll remember it next time.`);
+  }
+  // Sign In should happen later in the conversation and not in welcome intent
+  // See `Action discovery` docs: `Don't block your flow with account linking`
+  // https://developers.google.com/actions/discovery/implicit#action_discovery
+  conv.ask(new SignIn(`To save ${color} as your favorite color for next time`));
 });
 
 app.intent('Get Sign In', async (conv, params, signin) => {
   if (signin.status !== 'OK') {
-    return conv.close(
-      'I need to connect your account to save your favorite color.',
-      'Please try to link your account again.'
-    );
+    return conv.close(`Let's try again next time.`);
   }
-  const {payload} = conv.user.profile;
-  const greeting = payload ? ` ${payload.given_name}` : '';
-  conv.ask(`Hi${greeting}!`);
-
-  const doc = await conv.user.ref.get();
-  if (doc.exists) {
-    return conv.ask(`Your favorite color was ${doc.data()[Fields.COLOR]}. ` +
-      'Tell me a color to update it.');
-  }
-  conv.ask(`What's your favorite color?`);
-});
-
-app.intent('Save Color', async (conv, {color}) => {
-  await conv.user.ref.set({
-    [Fields.COLOR]: color,
-  });
-  conv.ask(`I saved your favorite color as ${color}.`);
-  conv.ask('You can also ask for your saved favorite color.');
-});
-
-app.intent('Read Color', async (conv) => {
-  const doc = await conv.user.ref.get();
-  if (!doc.exists) {
-    conv.ask('I do not have your favorite color saved.');
-    return conv.ask('You can tell me your favorite color to save it.');
-  }
-  conv.ask(`Your favorite color is ${doc.data()[Fields.COLOR]}.`);
-  conv.ask('You can also tell me your favorite color to update it.');
-});
-
-app.fallback('Default Fallback Intent', (conv) => {
-  conv.ask(`Sorry, I didn't understand.`);
-  conv.ask(`You can ask me to get or set your favorite color.`);
+  const color = conv.data[Fields.COLOR];
+  await conv.user.ref.set({[Fields.COLOR]: color});
+  conv.close(`I saved ${color} as your favorite color for next time.`);
 });
 
 exports.gsi = functions.https.onRequest(app);

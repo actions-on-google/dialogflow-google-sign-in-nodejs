@@ -31,6 +31,8 @@ This sample shows you how to create, save, read, and link user data using [Fireb
 1. Type `Talk to my test app` in the simulator, or say `OK Google, talk to my test app` to any Actions on Google enabled device signed into your developer account.
 1. After you have saved your favorite color, you can navigate to `<YOUR-FIREBASE-APP>.firebaseapp.com` to save and read your favorite color.
    1. You may need to allow popups in your browser for this page.
+1. For developer testing to reset sign in for a user, fill out the `Invocation` and `Directory information` fields on the Actions Console, then you can go to the Action page on the [Actions directory](https://developers.google.com/actions/distribute/directory) with a phone even while it's not published and tap `Reset app`.
+   1. Note that it make take some time to show up on the Actions directory.
 
 For more detailed information on deployment, see the [documentation](https://developers.google.com/actions/dialogflow/deploy-fulfillment).
 
