@@ -4,6 +4,14 @@ This sample shows you how to create, save, read, and link user data using [Fireb
 
 ## Setup Instructions
 
+### Before you begin
+Make sure to perform these prerequisite steps:
+
+1. Install Firebase SDK Version `4.x.x` with `npm install --global firebase-tools@4.x.x`.
+2. Select a project by running `firebase use --add` using alias `default` in the sample directory.
+
+For troubleshooting these steps, you can refer to the latest [setup instructions for Firebase Functions SDK](https://firebase.google.com/docs/functions/get-started#set_up_and_initialize_functions_sdk).
+
 ### Steps
 1. Use the [Actions on Google Console](https://console.actions.google.com) to add a new project with a name of your choosing and click *Create Project*.
 1. Click *Skip*, located on the top right to skip over category selection menu.
@@ -18,12 +26,12 @@ This sample shows you how to create, save, read, and link user data using [Fireb
 1. Select *Export and Import*.
 1. Select *Restore from zip*. Follow the directions to restore from the `GSISample.zip` file in this repo.
 1. Deploy the fulfillment webhook provided in the functions folder using [Google Cloud Functions for Firebase](https://firebase.google.com/docs/functions/):
-   1. Follow the instructions to [set up and initialize Firebase SDK for Cloud Functions](https://firebase.google.com/docs/functions/get-started#set_up_and_initialize_functions_sdk). Make sure to select the project that you have previously generated in the Actions on Google Console, to select both Hosting and Functions when asked which features you want to enable, and to reply `N` when asked to overwrite existing files by the Firebase CLI.
+   1. In the `functions` directory, install dependencies with `npm install`.
    1. Run `firebase deploy` and take note of the endpoint where the fulfillment webhook has been published. It should look like `Function URL (gsi): https://${REGION}-${PROJECT}.cloudfunctions.net/gsi`
 1. Go back to the Dialogflow console and select *Fulfillment* from the left navigation menu.
 1. Enable *Webhook*, set the value of *URL* to the `Function URL` from the previous step, then click *Save*.
 1. Go to the [Firebase console](https://console.firebase.google.com) and select the project that you have created on the Actions on Google console.
-   1. In the *Database* section, click *Create database* under `Cloud Firestore`*.
+   1. In the *Database* section, click *Create database* under `Cloud Firestore`.
    1. Click *Enable*. While testing this sample, you can keep the database world readable.
    1. In the *Authentication* section, under the Sign in method tab, enable the Google sign-in method and click Save.
       1. Make sure `One account per email address` is set to `Prevent creation of multiple accounts with the same email address` which should be selected by default.
