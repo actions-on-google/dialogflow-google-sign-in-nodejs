@@ -14,7 +14,7 @@ For troubleshooting these steps, you can refer to the latest [setup instructions
 
 ### Steps
 1. Use the [Actions on Google Console](https://console.actions.google.com) to add a new project with a name of your choosing and click *Create Project*.
-1. Click *Skip*, located on the top right to skip over category selection menu.
+1. Scroll down to the *More Options* section, and click on the *Conversational* card.
 1. On the left navigation menu under *ADVANCED OPTIONS*, click on *Account linking*
    1. Under *Account creation*, select `Yes, allow users to sign up for new accounts via voice`.
    1. Under *Linking type*, select `Google Sign In`.
