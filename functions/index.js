@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * Tip: Sign In should not happen in the Default Welcome Intent, instead
+ * later in the conversation.
+ * See `Action discovery` docs:
+ * https://developers.google.com/actions/discovery/implicit#action_discovery
+ */
+
 'use strict';
 
 const {dialogflow, SignIn, Suggestions} = require('actions-on-google');
@@ -64,8 +71,6 @@ app.intent('Default Welcome Intent', async (conv) => {
   const {payload} = conv.user.profile;
   const name = payload ? ` ${payload.given_name}` : '';
   conv.ask(`Hi${name}!`);
-
-  // Suggestions will be placed at the end of the response
   conv.ask(new Suggestions('Red', 'Green', 'Blue'));
 
   if (conv.user.ref) {
@@ -87,9 +92,6 @@ app.intent('Give Color', async (conv, {color}) => {
     conv.close(`I got ${color} as your favorite color.`);
     return conv.close(`Since you are signed in, I'll remember it next time.`);
   }
-  // Sign In should happen later in the conversation and not in welcome intent
-  // See `Action discovery` docs: `Don't block your flow with account linking`
-  // https://developers.google.com/actions/discovery/implicit#action_discovery
   conv.ask(new SignIn(`To save ${color} as your favorite color for next time`));
 });
 
@@ -99,7 +101,8 @@ app.intent('Get Sign In', async (conv, params, signin) => {
   }
   const color = conv.data[Fields.COLOR];
   await conv.user.ref.set({[Fields.COLOR]: color});
-  conv.close(`I saved ${color} as your favorite color for next time.`);
+  conv.close(`I saved ${color} as your favorite color. ` +
+    `Since you are signed in, I'll remember it next time.`);
 });
 
-exports.gsi = functions.https.onRequest(app);
+exports.dialogflowFirebaseFulfillment = functions.https.onRequest(app);

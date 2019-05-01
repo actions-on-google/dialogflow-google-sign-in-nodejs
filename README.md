@@ -1,56 +1,57 @@
-# Actions on Google: Account Linking with Google Sign-In Sample using Node.js and Cloud Functions for Firebase
+# Actions on Google: Account Linking with Google Sign-In Sample
 
-This sample shows you how to create, save, read, and link user data using [Firebase Authentication](https://firebase.google.com/docs/auth/) and [Google Sign-In for the Assistant](https://developers.google.com/actions/identity/google-sign-in).
+This sample demonstrates Actions on Google features for use on Google Assistant including account linking and [Google Sign In](https://developers.google.com/actions/identity/google-sign-in) -- using the [Node.js client library](https://github.com/actions-on-google/actions-on-google-nodejs), [Firebase Authentication](https://firebase.google.com/docs/auth/), and deployed on [Cloud Functions for Firebase](https://firebase.google.com/docs/functions/).
 
 ## Setup Instructions
+### Prerequisites
+1. Node.js and NPM
+    + We recommend installing using [NVM](https://github.com/creationix/nvm)
+1. Install the [Firebase CLI](https://developers.google.com/actions/dialogflow/deploy-fulfillment)
+    + We recommend using version 6.5.0, `npm install -g firebase-tools@6.5.0`
+    + Run `firebase login` with your Google account
 
-### Before you begin
-Make sure to perform these prerequisite steps:
+### Configuration
+#### Actions Console
+1. From the [Actions on Google Console](https://console.actions.google.com/), add a new project > **Create Project** > under **More options** > **Conversational**
+1. On the left navigation menu under **Advanced Options** > **Account linking**:
+   + **Account creation** > select `Yes, allow users to sign up for new accounts via voice`.
+   + **Linking type** > select `Google Sign In`.
+   + **Client information** > copy **Client ID** > **Save**.
+1. In the `functions` folder, create a `.env` file and declare `CLIENT_ID=${CLIENT_ID}`, replacing ${CLIENT_ID} from the previous step.
+1. From the left navigation menu under **Build** > **Actions** > **Add Your First Action** > **BUILD** (this will bring you to the Dialogflow console) > Select language and time zone > **CREATE**.
+1. In the Dialogflow console, go to **Settings** ⚙ > **Export and Import** > **Restore from zip** using the `agent.zip` in this sample's directory.
 
-1. Install Firebase SDK Version `4.x.x` with `npm install --global firebase-tools@4.x.x`.
-2. Select a project by running `firebase use --add` using alias `default` in the sample directory.
+#### Firestore Database
+1. From the [Firebase console](https://console.firebase.google.com), find and select your Actions on Google Project ID
+1. From **Settings** ⚙ > **Project settings** > **Service accounts** > **Firebase Admin SDK** > **Node.js** > **Generate new private key**
+1. Save private key in `functions/` and rename the file to `service-account.json`
+1. In the left navigation menu under **Develop** section > **Database** > **Create database** button > Select **Start in test mode** > **Enable**
 
-For troubleshooting these steps, you can refer to the latest [setup instructions for Firebase Functions SDK](https://firebase.google.com/docs/functions/get-started#set_up_and_initialize_functions_sdk).
+#### Firebase Deployment
+1. On your local machine, in the `functions` directory, run `npm install`
+1. Run `firebase deploy --project {PROJECT_ID}` to deploy the function
+    + To find your **Project ID**: In [Dialogflow console](https://console.dialogflow.com/) under **Settings** ⚙ > **General** tab > **Project ID**.
+1. Visit the **Hosting URL** link output from the prior deployment, `https://${PROJECT_ID}.firebaseapp.com`, in your browser
+1. Visit the **Project Console** link > **Functions** > **Dashboard** > copy the link: `https://${REGION}-${PROJECT_ID}.cloudfunctions.net/dialogflowFirebaseFulfillment`
 
-### Steps
-1. Use the [Actions on Google Console](https://console.actions.google.com) to add a new project with a name of your choosing and click *Create Project*.
-1. Scroll down to the *More Options* section, and click on the *Conversational* card.
-1. On the left navigation menu under *ADVANCED OPTIONS*, click on *Account linking*
-   1. Under *Account creation*, select `Yes, allow users to sign up for new accounts via voice`.
-   1. Under *Linking type*, select `Google Sign In`.
-   1. Under *Client information*, select and copy the text content in the box under *Client ID issued by Google to your Actions*, now referred to as `<CLIENT_ID>`.
-   1. In the `functions` folder, create a new file called `.env` and set the contents of the file to `CLIENT_ID=<CLIENT_ID>` using the text copied previously.
-1. In the Actions Console left navigation menu under *BUILD*, click on *Actions*. Click on *Add Your First Action* and choose your action's language(s).
-1. Select *Custom intent*, click *BUILD*. This will open a Dialogflow console. Click *CREATE*.
-1. Click on the gear icon to see the project settings.
-1. Select *Export and Import*.
-1. Select *Restore from zip*. Follow the directions to restore from the `GSISample.zip` file in this repo.
-1. Deploy the fulfillment webhook provided in the functions folder using [Google Cloud Functions for Firebase](https://firebase.google.com/docs/functions/):
-   1. In the `functions` directory, install dependencies with `npm install`.
-   1. Run `firebase deploy` and take note of the endpoint where the fulfillment webhook has been published. It should look like `Function URL (gsi): https://${REGION}-${PROJECT}.cloudfunctions.net/gsi`
-1. Go back to the Dialogflow console and select *Fulfillment* from the left navigation menu.
-1. Enable *Webhook*, set the value of *URL* to the `Function URL` from the previous step, then click *Save*.
-1. Go to the [Firebase console](https://console.firebase.google.com) and select the project that you have created on the Actions on Google console.
-   1. In the *Database* section, click *Create database* under `Cloud Firestore`.
-   1. Click *Enable*. While testing this sample, you can keep the database world readable.
-   1. In the *Authentication* section, under the Sign in method tab, enable the Google sign-in method and click Save.
-      1. Make sure `One account per email address` is set to `Prevent creation of multiple accounts with the same email address` which should be selected by default.
-1. Go back to the [Actions on Google console](https://console.firebase.google.com) and select the project that you have created for this sample.
-1. Type `Talk to my test app` in the simulator, or say `OK Google, talk to my test app` to any Actions on Google enabled device signed into your developer account.
-1. After you have saved your favorite color, you can navigate to `<YOUR-FIREBASE-APP>.firebaseapp.com` to save and read your favorite color.
-   1. You may need to allow popups in your browser for this page.
-1. For developer testing to reset sign in for a user, fill out the `Invocation` and `Directory information` fields on the Actions Console, then you can go to the Action page on the [Actions directory](https://developers.google.com/actions/distribute/directory) with a phone even while it's not published and tap `Reset app`.
-   1. Note that it make take some time to show up on the Actions directory.
+#### Dialogflow Console
+1. Return to the [Dialogflow Console](https://console.dialogflow.com) > select **Fulfillment** > **Enable** Webhook > Set **URL** to the **Function URL** from Firebase copied from previous step in the form of: `https://${REGION}-${PROJECT_ID}.cloudfunctions.net/dialogflowFirebaseFulfillment` > **SAVE**.
+1. From the left navigation menu, click **Integrations** > **Integration Settings** under Google Assistant > Enable **Auto-preview changes** >  **Test** to open the Actions on Google simulator then say or type `Talk to my test app`.
 
-For more detailed information on deployment, see the [documentation](https://developers.google.com/actions/dialogflow/deploy-fulfillment).
+### Running this Sample
++ You can test your Action on any Google Assistant-enabled device on which the Assistant is signed into the same account used to create this project. Just say or type, “OK Google, talk to my test app”.
++ You can also use the Actions on Google Console simulator to test most features and preview on-device behavior.
++ Go to `https://<YOUR-FIREBASE-APP>.firebaseapp.com` to save and read your favorite color.
 
-### References & Issues
+## Troubleshooting
++ If running into issues after following the above steps, clear your browser's cache and make sure pop ups are allowed.
+
+## References & Issues
 + Questions? Go to [StackOverflow](https://stackoverflow.com/questions/tagged/actions-on-google), [Assistant Developer Community on Reddit](https://www.reddit.com/r/GoogleAssistantDev/) or [Support](https://developers.google.com/actions/support/).
 + For bugs, please report an issue on Github.
-+ Actions on Google [Webhook Boilerplate Template](https://github.com/actions-on-google/dialogflow-webhook-boilerplate-nodejs).
-+ [Codelabs](https://codelabs.developers.google.com/?cat=Assistant) for Actions on Google.
-+ Actions on Google [Documentation](https://developers.google.com/actions/extending-the-assistant).
-+ More info on deploying with [Firebase](https://developers.google.com/actions/dialogflow/deploy-fulfillment).
++ Actions on Google [Documentation](https://developers.google.com/actions/extending-the-assistant)
++ Actions on Google [Codelabs](https://codelabs.developers.google.com/?cat=Assistant)
++ [Webhook Boilerplate Template](https://github.com/actions-on-google/dialogflow-webhook-boilerplate-nodejs) for Actions on Google
 
 ## Make Contributions
 Please read and follow the steps in the [CONTRIBUTING.md](CONTRIBUTING.md).
