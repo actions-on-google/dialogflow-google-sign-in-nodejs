@@ -12,13 +12,13 @@ This sample demonstrates Actions on Google features for use on Google Assistant 
 
 ### Configuration
 #### Actions Console
-1. From the [Actions on Google Console](https://console.actions.google.com/), add a new project > **Create Project** > under **More options** > **Conversational**
-1. On the left navigation menu under **Advanced Options** > **Account linking**:
+1. From the [Actions on Google Console](https://console.actions.google.com/), new project > **Create project** > under **More options** > **Conversational**
+1. From the top navigation menu under **Develop** > **Account linking** (left nav):
    + **Account creation** > select `Yes, allow users to sign up for new accounts via voice`.
    + **Linking type** > select `Google Sign In`.
    + **Client information** > copy **Client ID** > **Save**.
 1. In the `functions` folder, create a `.env` file and declare `CLIENT_ID=${CLIENT_ID}`, replacing ${CLIENT_ID} from the previous step.
-1. From the left navigation menu under **Build** > **Actions** > **Add Your First Action** > **BUILD** (this will bring you to the Dialogflow console) > Select language and time zone > **CREATE**.
+1. From the top navigation menu under **Develop** > **Actions** (left nav) > **Add your first action** > **BUILD** (this will bring you to the Dialogflow console) > Select language and time zone > **CREATE**.
 1. In the Dialogflow console, go to **Settings** ⚙ > **Export and Import** > **Restore from zip** using the `agent.zip` in this sample's directory.
 
 #### Firestore Database
