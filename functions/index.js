@@ -68,6 +68,12 @@ app.middleware(async (conv) => {
 });
 
 app.intent('Default Welcome Intent', async (conv) => {
+  // Account Linking is only supported for verified users
+  // https://developers.google.com/actions/assistant/guest-users
+  if (conv.user.verification !== 'VERIFIED') {
+    return conv.close(`Hi! You'll need to be a verified user to use this sample`);
+  }
+
   const {payload} = conv.user.profile;
   const name = payload ? ` ${payload.given_name}` : '';
   conv.ask(`Hi${name}!`);
