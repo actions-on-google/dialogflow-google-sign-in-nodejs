@@ -2,6 +2,8 @@
 
 This sample demonstrates Actions on Google features for use on Google Assistant including account linking and [Google Sign In](https://developers.google.com/assistant/identity/google-sign-in) -- using the [Node.js client library](https://github.com/actions-on-google/actions-on-google-nodejs), [Firebase Authentication](https://firebase.google.com/docs/auth/), and deployed on [Cloud Functions for Firebase](https://firebase.google.com/docs/functions/).
 
+:warning: This code sample was built using Dialogflow. We now recommend using [Actions Builder or the Actions SDK](https://developers.google.com/assistant/conversational/overview) to develop, test, and deploy Conversational Actions.
+
 ## Setup Instructions
 ### Prerequisites
 1. Node.js and NPM
